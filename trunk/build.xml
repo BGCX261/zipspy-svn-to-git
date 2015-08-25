@@ -1,0 +1,86 @@
+<?xml version='1.0'?>
+<!--
+ *
+ * This file is part of the source of
+ * 
+ * ZipSpy
+ * 
+ * Copyright (c) 2010 Griffin Brown Digital Publishing Ltd.
+ * 
+ * All rights reserved world-wide.
+ * 
+ * The contents of this file are subject to the Mozilla Public License Version 1.1 (the
+ * "License"); you may not use this file except in compliance with the License. You may obtain a
+ * copy of the License at http://www.mozilla.org/MPL/MPL-1.1.html
+ * 
+ * Software distributed under the License is distributed on an "AS IS" basis, WITHOUT WARRANTY
+ * OF ANY KIND, either express or implied. See the License for the specific language governing
+ * rights and limitations under the License.
+ * 
+-->
+	
+<project name="zipspy" default="jar" basedir=".">
+
+  <description>ZipSpy build</description>
+
+  <!-- set global properties for this build -->
+  <property name="version" value="0.1.0"/>
+  <property name="src" location="src"/>
+  <property name="build" location="build"/>
+  <property name="dist" location="dist"/>
+  <property name="etc" location="etc"/>
+  <property name="lib" location="etc/lib"/>
+
+  <target name="init">
+    <!-- Create the time stamp -->
+    <tstamp/>
+    <!-- Create the build directory structure used by compile -->
+    <mkdir dir="${build}"/>
+  </target>
+
+  <target name="compile" depends="init" description="compile the source">
+    <!-- Compile the java code from ${src} into ${build} -->
+    <javac source="1.5" srcdir="${src}" destdir="${build}">
+      <classpath>
+        <pathelement location="${lib}/log4j-1.2.15.jar"/>
+      	<pathelement location="${lib}/junit-4.6.jar" />
+      </classpath>
+    </javac>
+  </target>
+
+  <target name="jar" depends="compile" description="generate an all-in-one executable JAR">
+    <!-- Create the distribution directory -->
+    <mkdir dir="${dist}/temp"/>
+
+  	<!-- Make the jar  -->
+    <jar jarfile="${dist}/zipspy-${version}.jar" basedir="${build}">
+      <manifest>
+        <attribute name="Built-By" value="Griffin Brown Digital Publishing Ltd"/>
+        <attribute name="Implementation-Vendor" value="Griffin Brown Digital Publishing Ltd"/>
+        <attribute name="Implementation-Title" value="ZipSpy"/>
+        <attribute name="Implementation-Version" value="${version}"/>
+        <attribute name="Main-Class" value="org.xmlopen.zipspy.Driver"/>
+      </manifest>
+    </jar>
+    <delete dir="${dist}/temp"/>
+  </target>
+
+  <target name="distro" depends="jar" description="generates distro files">
+    <zip destfile="${dist}/zipspy-${version}.zip">
+      <zipfileset dir="${dist}" includes="*.jar"/>
+      <zipfileset dir="${etc}/notices" prefix="notices"/>
+    </zip>
+    <zip destfile="${dist}/zipspy-source-${version}.zip">
+      <zipfileset dir="${src}" prefix="src"/>
+      <zipfileset dir="${etc}" prefix="etc"/>
+      <zipfileset dir="." includes="build.xml"/>
+    </zip>
+  </target>
+
+  <target name="clean" description="clean up">
+    <!-- Delete the ${build} and ${dist} directory trees -->
+    <delete dir="${build}"/>
+    <delete dir="${dist}"/>
+  </target>
+
+</project>
